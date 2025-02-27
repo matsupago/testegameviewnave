@@ -305,100 +305,57 @@ function handleMovement() {
 class Player {
   constructor() {
     this.x = width / 2;
-    this.y = height - height/6; // Ajustar posição vertical do jogador
-    this.size = width/20; // Ajustar tamanho proporcionalmente
-    this.baseSpeed = width/120; // Velocidade proporcional ao tamanho do canvas
-    this.speed = this.baseSpeed;
-    this.cooldown = 0;
-    this.boostTime = 0;
-    this.trail = [];
-    this.shield = 100;
-    this.isShieldActive = false;
-    this.shieldColor = color(0, 150, 255, 100);
+    this.y = height - 50;
+    this.speed = 5;
+    this.size = 40;
+    this.boosted = false;
+    this.boostTimer = 0;
   }
   
   update() {
     handleMovement();
-    // Boost: increase speed temporarily if activated
-    if (this.boostTime > 0) {
-      this.boostTime--;
-      this.speed = this.baseSpeed + 3;
-    } else {
-      this.speed = this.baseSpeed;
-    }
-    this.x = constrain(this.x, this.size, width - this.size);
-    if (this.cooldown > 0) this.cooldown--;
-    
-    // Adicionar posição atual à trilha
-    this.trail.push({x: this.x, y: this.y});
-    if (this.trail.length > 10) {
-      this.trail.shift();
+    if (this.boosted) {
+      if (this.boostTimer > 0) {
+        this.boostTimer--;
+      } else {
+        this.boosted = false;
+        this.speed = 5;
+      }
     }
   }
   
   show() {
-    // Desenhar a trilha (se existir)
-    if (this.trail) {
-      for (let i = 0; i < this.trail.length; i++) {
-        let alpha = map(i, 0, this.trail.length, 0, 255);
-        fill(0, 255, 0, alpha * 0.2);
-        noStroke();
-        let pos = this.trail[i];
-        triangle(pos.x, pos.y - this.size, 
-                pos.x + this.size * 0.6, pos.y + this.size,
-                pos.x - this.size * 0.6, pos.y + this.size);
-      }
-    }
-    
     push();
-    imageMode(CENTER);
-    // Desenhar a imagem na posição do jogador
-    // O último parâmetro (this.size * 2) ajusta o tamanho da imagem
-    image(shipImage, this.x, this.y, this.size * 2, this.size * 2);
+    translate(this.x, this.y);
+    noStroke();
+    // Green neon glow for player
+    drawingContext.shadowBlur = 15;
+    drawingContext.shadowColor = "rgba(0,255,0,0.8)";
+    fill(0, 255, 0);
+    // Draw ship shape
+    beginShape();
+    vertex(0, -this.size);
+    vertex(this.size/2, this.size/2);
+    vertex(0, this.size/4);
+    vertex(-this.size/2, this.size/2);
+    endShape(CLOSE);
+    drawingContext.shadowBlur = 0;
     pop();
-    
-    // Desenhar escudo se ativo
-    if (this.isShieldActive) {
-      push();
-      noFill();
-      stroke(this.shieldColor);
-      strokeWeight(2);
-      circle(this.x, this.y, this.size * 3);
-      pop();
-    }
   }
   
   move(dir) {
     this.x += dir * this.speed;
+    this.x = constrain(this.x, 25, width - 25);
   }
   
   shoot() {
-    if (this.cooldown === 0) {
-      bullets.push(new Bullet(this.x, this.y - this.size));
-      this.cooldown = 15;
-    }
+    bullets.push(new Bullet(this.x, this.y - 20));
   }
   
   activateBoost() {
-    this.boostTime = 300; // Boost lasts for 300 frames
-  }
-
-  takeDamage() {
-    if (this.isShieldActive) {
-      this.shield -= 25;
-      if (this.shield <= 0) {
-        this.isShieldActive = false;
-      }
-    } else {
-      playerLives--;
-      if (playerLives <= 0) {
-        gameState = 'gameover';
-      } else {
-        // Dar invencibilidade temporária
-        this.isShieldActive = true;
-        this.shield = 100;
-      }
-    }
+    this.boosted = true;
+    this.speed = 8;
+    this.boostTimer = 300;
   }
 }
 
@@ -481,17 +438,19 @@ class Boss {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.size = 60;
-    this.hp = 20;
+    this.size = 80;
     this.speed = 2;
-    this.direction = 1; // moving right initially
+    this.hp = 20;
+    this.direction = 1;
   }
   
   update() {
-    // Horizontal movement with bouncing off canvas edges
     this.x += this.speed * this.direction;
-    if (this.x > width - this.size || this.x < this.size) {
+    if (this.x > width - this.size/2 || this.x < this.size/2) {
       this.direction *= -1;
+    }
+    if (random(1) < 0.02) {
+      enemies.push(new Enemy(this.x, this.y + this.size/2));
     }
   }
   
@@ -499,27 +458,25 @@ class Boss {
     push();
     translate(this.x, this.y);
     noStroke();
-    // Boss red neon glow effect
-    drawingContext.shadowBlur = 30;
+    // Red neon glow for boss
+    drawingContext.shadowBlur = 20;
     drawingContext.shadowColor = "rgba(255,0,0,0.8)";
     fill(255, 0, 0);
-    // Draw an octagon-like boss shape
+    // Draw boss shape
     beginShape();
-    for (let i = 0; i < 8; i++) {
-      let angle = TWO_PI / 8 * i;
-      let rad = this.size + (i % 2 === 0 ? 10 : 0);
-      let sx = cos(angle) * rad;
-      let sy = sin(angle) * rad;
-      vertex(sx, sy);
-    }
+    vertex(0, -this.size);
+    vertex(this.size, 0);
+    vertex(0, this.size);
+    vertex(-this.size, 0);
     endShape(CLOSE);
     drawingContext.shadowBlur = 0;
-    // Draw boss HP bar
-    fill(255);
-    rect(-this.size, this.size + 10, this.size * 2, 8);
-    fill(0, 255, 0);
-    let hpWidth = map(this.hp, 0, 20, 0, this.size * 2);
-    rect(-this.size, this.size + 10, hpWidth, 8);
+    // Draw HP bar
+    noFill();
+    stroke(255, 0, 0);
+    rect(-this.size/2, -this.size - 20, this.size, 10);
+    noStroke();
+    fill(255, 0, 0);
+    rect(-this.size/2, -this.size - 20, this.size * (this.hp/20), 10);
     pop();
   }
   
@@ -530,14 +487,14 @@ class Boss {
 }
 
 // ====================
-// Boots Power-Up Class
+// Boots Class (Power-up)
 // ====================
 class Boots {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.speed = 2;
     this.size = 20;
+    this.speed = 2;
   }
   
   update() {
@@ -548,12 +505,14 @@ class Boots {
     push();
     translate(this.x, this.y);
     noStroke();
-    // Draw a simple boot shape with a contrasting color
-    fill(0, 0, 255);
-    rectMode(CENTER);
-    rect(0, 0, this.size, this.size * 1.2, 5);
-    fill(255);
-    ellipse(0, this.size * 0.3, this.size * 0.6, this.size * 0.4);
+    // Blue neon glow for boots
+    drawingContext.shadowBlur = 15;
+    drawingContext.shadowColor = "rgba(0,255,255,0.8)";
+    fill(0, 255, 255);
+    // Draw boots shape
+    rect(-this.size/4, -this.size/2, this.size/2, this.size);
+    rect(-this.size/2, this.size/2 - 5, this.size, 5);
+    drawingContext.shadowBlur = 0;
     pop();
   }
   
@@ -569,10 +528,9 @@ class Particle {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.vx = random(-2, 2);
-    this.vy = random(-2, 2);
+    this.vx = random(-3, 3);
+    this.vy = random(-3, 3);
     this.alpha = 255;
-    this.size = random(2, 5);
   }
   
   update() {
@@ -583,12 +541,12 @@ class Particle {
   
   show() {
     noStroke();
-    fill(0, 255, 0, this.alpha);
-    ellipse(this.x, this.y, this.size);
+    fill(255, 0, 0, this.alpha);
+    ellipse(this.x, this.y, 4);
   }
   
   finished() {
-    return this.alpha < 0;
+    return this.alpha <= 0;
   }
 }
 
@@ -599,21 +557,19 @@ class Shockwave {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.radius = 0;
-    this.maxRadius = 80;
-    this.alpha = 200;
+    this.size = 1;
+    this.alpha = 255;
   }
   
   update() {
-    this.radius += 4;
-    this.alpha -= 4;
+    this.size += 2;
+    this.alpha -= 10;
   }
   
   show() {
     noFill();
-    stroke(0, 255, 0, this.alpha);
-    strokeWeight(3);
-    ellipse(this.x, this.y, this.radius * 2);
+    stroke(255, 0, 0, this.alpha);
+    ellipse(this.x, this.y, this.size);
   }
   
   finished() {
@@ -628,8 +584,8 @@ class Star {
   constructor(x, y) {
     this.x = x;
     this.y = y;
+    this.speed = random(1, 3);
     this.size = random(1, 3);
-    this.speed = random(0.5, 2);
   }
   
   update() {
@@ -642,7 +598,7 @@ class Star {
   
   show() {
     noStroke();
-    fill(0, 150, 0);
+    fill(255, 255, 255, 150);
     ellipse(this.x, this.y, this.size);
   }
 }
@@ -651,11 +607,9 @@ class Star {
 // Explosion Spawner
 // ====================
 function spawnExplosion(x, y) {
-  // Spawn many particles for an explosion effect
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 20; i++) {
     particles.push(new Particle(x, y));
   }
-  // Spawn a shockwave
   shockwaves.push(new Shockwave(x, y));
 }
 
@@ -734,23 +688,15 @@ class PowerupManager {
 // ====================
 class LevelSystem {
   constructor() {
-    this.currentLevel = 1;
-    this.objectives = [
-      { requirement: 10, description: "Destrua 10 inimigos" },
-      { requirement: 20, description: "Sobreviva por 60 segundos" },
-      { requirement: 1, description: "Derrote o chefe" }
-    ];
+    this.level = 1;
   }
-
+  
   update() {
-    // Lógica para verificar se o objetivo do nível foi alcançado
+    // Level logic is handled in the main game loop
   }
-
+  
   show() {
-    fill(255);
-    textSize(20);
-    text(`Nível: ${this.currentLevel}`, 10, 90);
-    text(this.objectives[this.currentLevel - 1].description, 10, 120);
+    // Level display is handled in the main game loop
   }
 }
 
@@ -759,11 +705,7 @@ class LevelSystem {
 // ====================
 class WeaponSystem {
   constructor() {
-    this.currentWeapon = 'single';
-  }
-
-  shoot() {
-    // Lógica para disparar com a arma atual
+    // Future weapon upgrade implementation
   }
 }
 
@@ -772,15 +714,7 @@ class WeaponSystem {
 // ====================
 class EffectSystem {
   constructor() {
-    this.effects = [];
-  }
-
-  update() {
-    // Atualizar efeitos
-  }
-
-  show() {
-    // Mostrar efeitos
+    // Future special effects implementation
   }
 }
 
