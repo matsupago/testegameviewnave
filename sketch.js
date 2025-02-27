@@ -356,14 +356,48 @@ class Player {
 }
 
 // ====================
+// Enemy Class
+// ====================
+class Enemy {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.speed = 3;
+    this.size = 30;
+  }
+  
+  update() {
+    this.y += this.speed;
+  }
+  
+  show() {
+    push();
+    translate(this.x, this.y);
+    noStroke();
+    // Red neon glow for enemies
+    drawingContext.shadowBlur = 15;
+    drawingContext.shadowColor = "rgba(255,0,0,0.8)";
+    fill(255, 0, 0);
+    // Draw enemy shape
+    triangle(0, -this.size/2, this.size/2, this.size/2, -this.size/2, this.size/2);
+    drawingContext.shadowBlur = 0;
+    pop();
+  }
+  
+  offscreen() {
+    return this.y > height + this.size;
+  }
+}
+
+// ====================
 // Bullet Class
 // ====================
 class Bullet {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.r = 5;
-    this.speed = 7;
+    this.speed = 10;
+    this.size = 8;
   }
   
   update() {
@@ -371,59 +405,24 @@ class Bullet {
   }
   
   show() {
-    noStroke();
-    fill(0, 255, 0);
-    ellipse(this.x, this.y, this.r * 2);
-  }
-  
-  offscreen() {
-    return (this.y < -this.r);
-  }
-  
-  hits(enemy) {
-    let d = dist(this.x, this.y, enemy.x, enemy.y);
-    return (d < this.r + enemy.size * 0.5);
-  }
-}
-
-// ====================
-// Enemy Class (Standard Enemies)
-// ====================
-class Enemy {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.size = 30;
-    // Increase base speed based on current level
-    this.speed = random(2, 4) + (currentLevel - 1);
-  }
-  
-  update() {
-    this.y += this.speed;
-    // Horizontal oscillation for dynamic movement
-    this.x += sin(frameCount * 0.05) * 2;
-  }
-  
-  show() {
     push();
-    translate(this.x, this.y);
     noStroke();
-    // Red neon glow for enemy
-    drawingContext.shadowBlur = 15;
-    drawingContext.shadowColor = "rgba(255,0,0,0.8)";
-    fill(255, 0, 0);
-    beginShape();
-    vertex(0, -this.size);
-    vertex(this.size, this.size);
-    vertex(0, this.size * 0.5);
-    vertex(-this.size, this.size);
-    endShape(CLOSE);
+    // Green neon glow for bullets
+    drawingContext.shadowBlur = 10;
+    drawingContext.shadowColor = "rgba(0,255,0,0.8)";
+    fill(0, 255, 0);
+    ellipse(this.x, this.y, this.size);
     drawingContext.shadowBlur = 0;
     pop();
   }
   
+  hits(enemy) {
+    let d = dist(this.x, this.y, enemy.x, enemy.y);
+    return d < enemy.size;
+  }
+  
   offscreen() {
-    return (this.y > height + this.size);
+    return this.y < 0;
   }
 }
 
