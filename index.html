@@ -1,206 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Green Space Shooter</title>
-  <!-- Import p5.js from a CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-  <meta property="og:title" content="Green Space Shooter">
-  <meta property="og:description" content="A retro-style space shooter game with global leaderboard">
-  <meta property="og:image" content="https://matsupago.github.io/testegameviewnave/assets/preview.png">
-  <meta property="og:url" content="https://matsupago.github.io/testegameviewnave/">
-  <style>
-    body {
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: black;
-      font-family: 'Courier New', monospace;
-      color: #00ff00; /* Verde brilhante */
-    }
-
-    #gameOverModal, #leaderboardModal {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 20, 0, 0.95); /* Fundo verde escuro */
-      padding: 30px;
-      border: 2px solid #00ff00;
-      border-radius: 10px;
-      color: #00ff00;
-      z-index: 1000;
-      min-width: 300px;
-      box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-    }
-
-    .modal-content {
-      text-align: center;
-    }
-
-    .modal-title {
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: #00ff00;
-    }
-
-    input {
-      background: black;
-      border: 1px solid #00ff00;
-      color: #00ff00;
-      padding: 10px;
-      margin: 10px 0;
-      width: 100%;
-      box-sizing: border-box;
-      font-family: 'Courier New', monospace;
-    }
-
-    .button-container {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
-    }
-
-    button {
-      background: #00ff00;
-      color: black;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      margin: 5px;
-      font-family: 'Courier New', monospace;
-      font-weight: bold;
-      min-width: 120px;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background: #00cc00; /* Verde mais escuro no hover */
-    }
-
-    .leaderboard-table {
-      width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
-    }
-
-    .leaderboard-table th {
-      text-align: left;
-      padding: 8px;
-      border-bottom: 1px solid #00ff00;
-    }
-
-    .leaderboard-table td {
-      padding: 8px;
-      border-bottom: 1px solid rgba(0, 255, 0, 0.3);
-    }
-
-    .completion-text {
-      font-size: 12px;
-      color: rgba(0, 255, 0, 0.7);
-      margin-top: 20px;
-    }
-
-    /* Adicionar efeito de brilho nos botões */
-    button {
-      position: relative;
-      overflow: hidden;
-    }
-
-    button::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(
-        to bottom right,
-        rgba(0, 255, 0, 0.2),
-        rgba(0, 255, 0, 0)
-      );
-      transform: rotate(45deg);
-      transition: all 0.3s;
-    }
-
-    button:hover::after {
-      transform: rotate(45deg) translate(50%, 50%);
-    }
-
-    /* Adicionar efeito de borda brilhante nos modais */
-    #gameOverModal, #leaderboardModal {
-      animation: borderGlow 2s infinite;
-    }
-
-    @keyframes borderGlow {
-      0% { box-shadow: 0 0 20px rgba(0, 255, 0, 0.3); }
-      50% { box-shadow: 0 0 30px rgba(0, 255, 0, 0.5); }
-      100% { box-shadow: 0 0 20px rgba(0, 255, 0, 0.3); }
-    }
-
-    main {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      background: black;
-    }
-
-    canvas {
-      display: block;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Green</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+    <script src="bgreen.js"></script> <!-- Inclua seu arquivo JavaScript aqui -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
 </head>
 <body>
-  <main>
-    <!-- O canvas será criado aqui -->
-  </main>
-
-  <div id="gameOverModal">
-    <div class="modal-content">
-      <h2 class="modal-title">GAME OVER</h2>
-      <p>Your Score: <span id="finalScore">0</span></p>
-      <p>Enter your email to save your score:</p>
-      <input type="email" id="playerEmail" placeholder="Enter your email">
-      <div class="button-container">
-        <button onclick="submitScore()">Submit Score</button>
-        <button onclick="skipSubmission()">Skip</button>
-      </div>
-      <p class="completion-text">AI INVASION SIMULATION COMPLETE</p>
+    <div id="instructionsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Como Jogar</h2>
+            <ul>
+                <li>Organize os blocos para formar uma cadeia válida</li>
+                <li>Cada bloco deve se conectar ao anterior através do hash</li>
+                <li>Clique em dois blocos para trocá-los de posição</li>
+                <li>Use o botão 'Reset' para embaralhar os blocos</li>
+                <li>Use o botão 'Solve' para ver a solução</li>
+            </ul>
+            
+            <p>Clique em qualquer lugar para começar</p>
+        </div>
     </div>
-  </div>
-
-  <div id="leaderboardModal">
-    <div class="modal-content">
-      <h2 class="modal-title">AI INVASION LEADERBOARD</h2>
-      <table class="leaderboard-table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Player</th>
-            <th>Score</th>
-            <th>Level</th>
-          </tr>
-        </thead>
-        <tbody id="leaderboardEntries">
-        </tbody>
-      </table>
-      <div class="button-container">
-        <button onclick="closeLeaderboard()">Close</button>
-        <button onclick="shareOnTwitter()">Share on X</button>
-        <button onclick="restartGame()">Restart</button>
-      </div>
-      <p class="completion-text">AI INVASION SIMULATION COMPLETE</p>
+    <div id="exampleModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeExampleModal()">&times;</span>
+            <h2>Demonstração</h2>
+            <div class="example-blocks">
+                <div class="example-block">
+                    <div class="block-content">
+                        <span>GEN</span>
+                        <span>A123</span>
+                    </div>
+                </div>
+                <div class="example-arrow">→</div>
+                <div class="example-block">
+                    <div class="block-content">
+                        <span>A123</span>
+                        <span>B456</span>
+                    </div>
+                </div>
+                <div class="example-arrow">→</div>
+                <div class="example-block">
+                    <div class="block-content">
+                        <span>B456</span>
+                        <span>C789</span>
+                    </div>
+                </div>
+            </div>
+            <p class="example-caption">O hash do bloco anterior (embaixo) deve corresponder ao hash de entrada do próximo bloco (em cima)</p>
+        </div>
     </div>
-  </div>
-
-  <!-- Carregar scripts na ordem correta -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="./sketch.js"></script>
-  <script src="./js/supabase-config.js"></script>
+    <button id="helpButton" class="help-button">?</button>
+    <button id="exampleButton" class="example-button">📋</button>
 </body>
 </html>
