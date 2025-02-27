@@ -1,3 +1,6 @@
+// Adicione no início do arquivo
+console.log('Loading sketch.js...');
+
 // Viral Green Space Shooter with Boss & Boots Power-Up
 // Controls: LEFT/RIGHT arrow keys to move, SPACE to shoot
 
@@ -39,14 +42,17 @@ let explosionSound;
 let enemiesDestroyed = 0; // Contador de inimigos destruídos
 
 function setup() {
+  console.log('Setting up canvas...');
   // Criar um canvas quadrado menor e centralizado
-  let canvasSize = min(windowWidth, windowHeight) * 0.8; // 80% da menor dimensão da janela
+  let canvasSize = min(windowWidth, windowHeight) * 0.8;
   let canvas = createCanvas(canvasSize, canvasSize);
   
   // Centralizar o canvas na janela
   let x = (windowWidth - canvasSize) / 2;
   let y = (windowHeight - canvasSize) / 2;
   canvas.position(x, y);
+  
+  console.log('Canvas created:', canvasSize, 'x', canvasSize);
   
   player = new Player();
   // Ajustar quantidade de estrelas para o novo tamanho
@@ -61,31 +67,35 @@ function setup() {
 }
 
 function draw() {
-  background(0);
-  
-  // Apply camera shake effect
-  if (shakeTimer > 0) {
-    push();
-    let shakeX = random(-5, 5);
-    let shakeY = random(-5, 5);
-    translate(shakeX, shakeY);
-    shakeTimer--;
-    drawGame();
-    pop();
-  } else {
-    drawGame();
+  try {
+    background(0);
+    
+    // Apply camera shake effect
+    if (shakeTimer > 0) {
+      push();
+      let shakeX = random(-5, 5);
+      let shakeY = random(-5, 5);
+      translate(shakeX, shakeY);
+      shakeTimer--;
+      drawGame();
+      pop();
+    } else {
+      drawGame();
+    }
+    
+    // Screen flash on game over
+    if (flashAlpha > 0) {
+      fill(255, flashAlpha);
+      rect(0, 0, width, height);
+      flashAlpha -= 10;
+    }
+    
+    // Atualizar sistema de níveis
+    levelSystem.update();
+    levelSystem.show();
+  } catch (error) {
+    console.error('Error in draw:', error);
   }
-  
-  // Screen flash on game over
-  if (flashAlpha > 0) {
-    fill(255, flashAlpha);
-    rect(0, 0, width, height);
-    flashAlpha -= 10;
-  }
-  
-  // Atualizar sistema de níveis
-  levelSystem.update();
-  levelSystem.show();
 }
 
 function drawGame() {
