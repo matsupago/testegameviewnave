@@ -24,10 +24,6 @@ let flashAlpha = 0;
 let boss = null;
 let nextBossScore = 100;
 
-let shipImage;
-let enemyImage;
-let bossImage;
-
 let playerLives = 3;
 let playerShield = 100;
 
@@ -611,21 +607,6 @@ function spawnExplosion(x, y) {
     particles.push(new Particle(x, y));
   }
   shockwaves.push(new Shockwave(x, y));
-}
-
-function preload() {
-  // Carregar imagens
-  shipImage = loadImage('assets/ship.png', 
-    () => console.log('Ship image loaded successfully'), 
-    () => console.error('Error loading ship image'));
-  
-  enemyImage = loadImage('assets/enemy.png', 
-    () => console.log('Enemy image loaded successfully'), 
-    () => console.error('Error loading enemy image'));
-  
-  bossImage = loadImage('assets/boss.png', 
-    () => console.log('Boss image loaded successfully'), 
-    () => console.error('Error loading boss image'));
 }
 
 class PowerupManager {
